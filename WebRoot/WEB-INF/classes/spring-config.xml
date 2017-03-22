@@ -73,7 +73,7 @@
 		<property name="userDao" ref="userDao" />
 	</bean>
 	<bean id="notificationService" class="org.androidpn.server.service.impl.NotificationServiceImpl">
-	    <property name="NotificationDao" ref="NotificationDao"/>
+	    <property name="notificationDao" ref="notificationDao"/>
 	</bean>
 
 	<!-- =============================================================== -->
@@ -98,7 +98,7 @@
 	<bean class="org.springframework.beans.factory.config.CustomEditorConfigurer">
 		<property name="customEditors">
 			<map>
-				<entry key="java.net.SocketAddress">
+				<entry key="java.net.SocketAddress"> 
 					<bean class="org.apache.mina.integration.beans.InetSocketAddressEditor" />
 				</entry>
 			</map>

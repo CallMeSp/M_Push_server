@@ -17,6 +17,12 @@
  */
 package org.androidpn.server.xmpp.handler;
 
+import java.util.List;
+
+import org.androidpn.server.model.Notification;
+import org.androidpn.server.service.NotificationService;
+import org.androidpn.server.service.ServiceLocator;
+import org.androidpn.server.xmpp.push.NotificationManager;
 import org.androidpn.server.xmpp.router.PacketDeliverer;
 import org.androidpn.server.xmpp.session.ClientSession;
 import org.androidpn.server.xmpp.session.Session;
@@ -38,12 +44,18 @@ public class PresenceUpdateHandler {
     protected final Log log = LogFactory.getLog(getClass());
 
     protected SessionManager sessionManager;
+    
+    private NotificationService notificationService;
+    
+    private NotificationManager notificationManager;
 
     /**
      * Constructor.
      */
     public PresenceUpdateHandler() {
         sessionManager = SessionManager.getInstance();
+        notificationService=ServiceLocator.getNotificationService();
+        notificationManager=new NotificationManager();
     }
 
     /**
@@ -53,7 +65,7 @@ public class PresenceUpdateHandler {
      */
     public void process(Packet packet) {
         ClientSession session = sessionManager.getSession(packet.getFrom());
-
+ 
         try {
             Presence presence = (Presence) packet;
             Presence.Type type = presence.getType();
@@ -72,6 +84,17 @@ public class PresenceUpdateHandler {
                         // initSession(session);
                         session.setInitialized(true);
                     }
+                    List<Notification> list=notificationService.findNotificationsByUsername(session.getUsername());
+                    if (list!=null&&list.size()>0) {
+						for(Notification notification:list){
+							String apikey=notification.getApiKey();
+							String title=notification.getTitle();
+							String uri=notification.getUri();
+							String message=notification.getMessage();
+							notificationManager.sendNotifcationToUser(apikey, session.getUsername(), title, message, uri);
+							notificationService.deleteNotification(notification);
+						}
+					}
                 }
 
             } else if (Presence.Type.unavailable == type) {
