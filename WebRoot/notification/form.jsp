@@ -3,7 +3,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <title>Admin Console</title>
+    <title>Admin Console?????</title>
 	<meta name="menu" content="notification" />    
 </head>
 
@@ -18,13 +18,18 @@
 <tr>
 	<td width="20%">To:</td>
 	<td width="80%">
-		<input type="radio" name="broadcast" value="Y" checked="checked" />  All (Broadcast) 
-        <input type="radio" name="broadcast" value="N" /> Single Device 
+		<input type="radio" name="broadcast" value="0" checked="checked" />  All (Broadcast) 
+        <input type="radio" name="broadcast" value="1" /> By Username
+        <input type="radio" name="broadcast" value="2" /> By alias
 	</td>
 </tr>
 <tr id="trUsername" style="display:none;">
 	<td>Username:</td>
 	<td><input type="text" id="username" name="username" value="" style="width:380px;" /></td>
+</tr>
+<tr id="trAlias" style="display:none;">
+	<td>Alias:</td>
+	<td><input type="text" id="alias" name="alias" value="" style="width:380px;" /></td>
 </tr>
 <tr>
 	<td>Title:</td>
@@ -61,16 +66,26 @@ $(function() {
 	$('input[name=broadcast]').click(function() {
 		if ($('input[name=broadcast]')[0].checked) {
 			$('#trUsername').hide();
-		} else {
-			$('#trUsername').show();
+			$('#trAlias').hide();
+		} else if($('input[name=broadcast]')[1].checked){
+		    $('#trUsername').show();
+		    $('#trAlias').hide();
+		}else{
+			$('#trUsername').hide();
+			$('#trAlias').show();
 		}
 	});
 	
 	if ($('input[name=broadcast]')[0].checked) {
 		$('#trUsername').hide();
-	} else {
+		$('#trAlias').hide();
+	} else if($('input[name=broadcast]')[1].checked){
 		$('#trUsername').show();
-	}	
+		$('#trAlias').hide();
+	}else{
+	    $('#trUsername').hide();
+		$('#trAlias').show();
+	}
 });
  
 //]]>

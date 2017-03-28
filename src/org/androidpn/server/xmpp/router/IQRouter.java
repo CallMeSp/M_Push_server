@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.androidpn.server.xmpp.handler.IQAuthHandler;
+import org.androidpn.server.xmpp.handler.IQDeliverHandler;
 import org.androidpn.server.xmpp.handler.IQHandler;
 import org.androidpn.server.xmpp.handler.IQRegisterHandler;
 import org.androidpn.server.xmpp.handler.IQRosterHandler;
@@ -59,6 +60,7 @@ public class IQRouter {
         iqHandlers.add(new IQAuthHandler());
         iqHandlers.add(new IQRegisterHandler());
         iqHandlers.add(new IQRosterHandler());
+        iqHandlers.add(new IQDeliverHandler());
     }
 
     /**

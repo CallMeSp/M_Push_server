@@ -28,6 +28,16 @@ public class Notification {
 	
 	@Column(name = "uri",length = 256)
     private String uri;
+	
+	@Column(name = "uuid",length=64,nullable=false,unique=true)
+	private String UUID;
+	
+	public String getUUID() {
+		return UUID;
+	}
+	public void setUUID(String uUID) {
+		UUID = uUID;
+	}
 	public long getId() {
 		return id;
 	}

@@ -28,5 +28,11 @@ public class NotificationDaoHebernate extends HibernateDaoSupport implements Not
 	}
 
 
-
+	public void deleteNotificationByUUID(String uuid) {
+		@SuppressWarnings("unchecked")
+		List<Notification> list=getHibernateTemplate().find("from Notification where uuid=?",uuid);
+		if (list!=null&&list.size()>0) {
+			getHibernateTemplate().delete(list.get(0));
+		}
+	}
 }
