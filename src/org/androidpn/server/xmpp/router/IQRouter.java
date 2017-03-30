@@ -27,6 +27,8 @@ import org.androidpn.server.xmpp.handler.IQDeliverHandler;
 import org.androidpn.server.xmpp.handler.IQHandler;
 import org.androidpn.server.xmpp.handler.IQRegisterHandler;
 import org.androidpn.server.xmpp.handler.IQRosterHandler;
+import org.androidpn.server.xmpp.handler.IQSetAliasHandler;
+import org.androidpn.server.xmpp.handler.IQSetTagsHandler;
 import org.androidpn.server.xmpp.session.ClientSession;
 import org.androidpn.server.xmpp.session.Session;
 import org.androidpn.server.xmpp.session.SessionManager;
@@ -61,6 +63,8 @@ public class IQRouter {
         iqHandlers.add(new IQRegisterHandler());
         iqHandlers.add(new IQRosterHandler());
         iqHandlers.add(new IQDeliverHandler());
+        iqHandlers.add(new IQSetAliasHandler());
+        iqHandlers.add(new IQSetTagsHandler());
     }
 
     /**

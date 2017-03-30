@@ -55,6 +55,7 @@ public class NotificationController extends MultiActionController {
                 "username");
         String alias = ServletRequestUtils.getStringParameter(request,
                 "alias");
+        String tag =ServletRequestUtils.getRequiredStringParameter(request,"tag");
         String title = ServletRequestUtils.getStringParameter(request, "title");
         String message = ServletRequestUtils.getStringParameter(request,
                 "message");
@@ -65,13 +66,14 @@ public class NotificationController extends MultiActionController {
 
         if (broadcast.equals("0")) {
             notificationManager.sendBroadcast(apiKey, title, message, uri);
-        } else if (broadcast.equals("1")) {
+        }else if (broadcast.equals("1")) {
         	notificationManager.sendNotifcationToUser(apiKey, username, title,
                     message, uri,true);
 		}else if(broadcast.equals("2")){
             notificationManager.sendNotificationByAlias(apiKey, alias, title, message, uri, true);
-        }
-
+        }else if (broadcast.equals("3")) {
+			notificationManager.sendNotificationByTag(apiKey, tag, title, message, uri,true);
+		}
         ModelAndView mav = new ModelAndView();
         mav.setViewName("redirect:notification.do");
         return mav;
