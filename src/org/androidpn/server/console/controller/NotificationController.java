@@ -17,11 +17,19 @@
  */
 package org.androidpn.server.console.controller;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.androidpn.server.util.Config;
 import org.androidpn.server.xmpp.push.NotificationManager;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.multiaction.MultiActionController;
@@ -49,20 +57,39 @@ public class NotificationController extends MultiActionController {
 
     public ModelAndView send(HttpServletRequest request,
             HttpServletResponse response) throws Exception {
-        String broadcast = ServletRequestUtils.getStringParameter(request,
-                "broadcast", "0");
-        String username = ServletRequestUtils.getStringParameter(request,
-                "username");
-        String alias = ServletRequestUtils.getStringParameter(request,
-                "alias");
-        String tag =ServletRequestUtils.getRequiredStringParameter(request,"tag");
-        String title = ServletRequestUtils.getStringParameter(request, "title");
-        String message = ServletRequestUtils.getStringParameter(request,
-                "message");
-        String uri = ServletRequestUtils.getStringParameter(request, "uri");
+        String broadcast =null;
+        String username = null;
+        String alias = null;
+        String tag =null;
+        String title = null;
+        String message = null;
+        String uri = null;
 
         String apiKey = Config.getString("apiKey", "");
         logger.debug("apiKey=" + apiKey);
+        
+        DiskFileItemFactory factory=new DiskFileItemFactory();
+        ServletFileUpload servletFileUpload=new ServletFileUpload(factory);
+        List<FileItem> fileItems=servletFileUpload.parseRequest(request);
+        for(FileItem item:fileItems){
+        	if ("broadcast".equals(item.getFieldName())) {
+				broadcast=item.getString("utf-8");
+			}else if ("username".equals(item.getFieldName())) {
+				username=item.getString("utf-8");
+			}else if ("uri".equals(item.getFieldName())) {
+				uri=item.getString("utf-8");
+			}else if ("message".equals(item.getFieldName())) {
+				message=item.getString("utf-8");
+			}else if ("title".equals(item.getFieldName())) {
+				title=item.getString("utf-8");
+			}else if ("alias".equals(item.getFieldName())) {
+				alias=item.getString("utf-8");
+			}else if ("tag".equals(item.getFieldName())) {
+				tag=item.getString("utf-8");
+			}else if ("image".equals(item.getFieldName())) {
+				String imageurl=uploadImage(request, item);
+			}
+        }
 
         if (broadcast.equals("0")) {
             notificationManager.sendBroadcast(apiKey, title, message, uri);
@@ -78,5 +105,34 @@ public class NotificationController extends MultiActionController {
         mav.setViewName("redirect:notification.do");
         return mav;
     }
+    private String uploadImage(HttpServletRequest request,FileItem item) throws Exception{
+		String uploadPath=getServletContext().getRealPath("/upload");
+		File uploadDirFile=new File(uploadPath);
+		if (!uploadDirFile.exists()) {
+			uploadDirFile.mkdirs();
+			
+		}
+		if (item!=null&&item.getContentType().startsWith("image")) {
+			String suffix=item.getName().substring(item.getName().indexOf("."));
+			String filename=System.currentTimeMillis()+suffix;
+			FileInputStream inputStream=(FileInputStream) item.getInputStream();
+			FileOutputStream fos=new FileOutputStream(uploadPath+"/"+filename);
+			byte[] buffer=new byte[1024];
+			int length=0;
+			while((length=inputStream.read(buffer))>0){
+				fos.write(buffer,0,length);
+				fos.flush();
+			}
+			fos.close();
+			inputStream.close();
+			String servernameString=request.getServerName();
+			int serverport=request.getServerPort();
+			String imageurl="http://"+servernameString+":"+serverport+"/upload/"+filename;
+			System.out.println(imageurl);
+			return imageurl;
+			
+		}
+		return "";
+	}
 
 }

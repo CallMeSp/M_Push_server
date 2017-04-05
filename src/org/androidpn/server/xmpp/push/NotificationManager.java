@@ -79,14 +79,14 @@ public class NotificationManager {
         	
         	Random random = new Random();
             String id = Integer.toHexString(random.nextInt());
+            saveNotification(id,apiKey, user.getUsername(), title, message, uri);
             IQ notificationIQ = createNotificationIQ(id,apiKey, title, message, uri);
-            
         	ClientSession session=sessionManager.getSession(user.getUsername());
         	if (session!=null&&session.getPresence().isAvailable()) {
         		notificationIQ.setTo(session.getAddress());
                 session.deliver(notificationIQ);
 			}
-			saveNotification(id,apiKey, user.getUsername(), title, message, uri);
+			
         }
     }
 
@@ -105,16 +105,6 @@ public class NotificationManager {
         Random random = new Random();
         String id = Integer.toHexString(random.nextInt());
         
-        IQ notificationIQ = createNotificationIQ(id,apiKey, title, message, uri);
-        ClientSession session = sessionManager.getSession(username);
-        if (session != null) {
-            if (session.getPresence().isAvailable()) {
-                notificationIQ.setTo(session.getAddress());
-                session.deliver(notificationIQ);
-            }else{
-            	saveNotification(id,apiKey, username, title, message, uri);
-            }
-        }
         try {
 			User user=userService.getUserByUsername(username);
 			if(user!=null&&shouldsave){
@@ -123,6 +113,18 @@ public class NotificationManager {
 		} catch (UserNotFoundException e) {
 			e.printStackTrace();
 		}
+        IQ notificationIQ = createNotificationIQ(id,apiKey, title, message, uri);
+        ClientSession session = sessionManager.getSession(username);
+        
+        if (session != null) {
+            if (session.getPresence().isAvailable()) {
+                notificationIQ.setTo(session.getAddress());
+                session.deliver(notificationIQ);
+            }else{
+            	saveNotification(id,apiKey, username, title, message, uri);
+            }
+        }
+        
 		
     }
     
