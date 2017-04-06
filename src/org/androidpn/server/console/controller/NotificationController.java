@@ -64,7 +64,7 @@ public class NotificationController extends MultiActionController {
         String title = null;
         String message = null;
         String uri = null;
-
+        String imageUrl=null;
         String apiKey = Config.getString("apiKey", "");
         logger.debug("apiKey=" + apiKey);
         
@@ -87,19 +87,19 @@ public class NotificationController extends MultiActionController {
 			}else if ("tag".equals(item.getFieldName())) {
 				tag=item.getString("utf-8");
 			}else if ("image".equals(item.getFieldName())) {
-				String imageurl=uploadImage(request, item);
+				imageUrl=uploadImage(request, item);
 			}
         }
 
         if (broadcast.equals("0")) {
-            notificationManager.sendBroadcast(apiKey, title, message, uri);
+            notificationManager.sendBroadcast(apiKey, title, message, uri,imageUrl);
         }else if (broadcast.equals("1")) {
         	notificationManager.sendNotifcationToUser(apiKey, username, title,
-                    message, uri,true);
+                    message, uri,imageUrl,true);
 		}else if(broadcast.equals("2")){
-            notificationManager.sendNotificationByAlias(apiKey, alias, title, message, uri, true);
+            notificationManager.sendNotificationByAlias(apiKey, alias, title, message, uri, imageUrl,true);
         }else if (broadcast.equals("3")) {
-			notificationManager.sendNotificationByTag(apiKey, tag, title, message, uri,true);
+			notificationManager.sendNotificationByTag(apiKey, tag, title, message, uri,imageUrl,true);
 		}
         ModelAndView mav = new ModelAndView();
         mav.setViewName("redirect:notification.do");

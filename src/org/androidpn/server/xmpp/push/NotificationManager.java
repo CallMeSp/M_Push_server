@@ -70,7 +70,7 @@ public class NotificationManager {
      * @param uri the uri
      */
     public void sendBroadcast(String apiKey, String title, String message,
-            String uri) {
+            String uri,String imageUrl) {
         log.debug("sendBroadcast()...");
         
         
@@ -79,8 +79,8 @@ public class NotificationManager {
         	
         	Random random = new Random();
             String id = Integer.toHexString(random.nextInt());
-            saveNotification(id,apiKey, user.getUsername(), title, message, uri);
-            IQ notificationIQ = createNotificationIQ(id,apiKey, title, message, uri);
+            saveNotification(id,apiKey, user.getUsername(), title, message,imageUrl, uri);
+            IQ notificationIQ = createNotificationIQ(id,apiKey, title, message, uri,imageUrl);
         	ClientSession session=sessionManager.getSession(user.getUsername());
         	if (session!=null&&session.getPresence().isAvailable()) {
         		notificationIQ.setTo(session.getAddress());
@@ -99,7 +99,7 @@ public class NotificationManager {
      * @param uri the uri
      */
     public void sendNotifcationToUser(String apiKey, String username,
-            String title, String message, String uri,boolean shouldsave) {
+            String title, String message, String uri,String imageUrl,boolean shouldsave) {
         log.debug("sendNotifcationToUser()...");
         
         Random random = new Random();
@@ -108,12 +108,12 @@ public class NotificationManager {
         try {
 			User user=userService.getUserByUsername(username);
 			if(user!=null&&shouldsave){
-				saveNotification(id,apiKey, username, title, message, uri);
+				saveNotification(id,apiKey, username, title, message, imageUrl,uri);
 			}
 		} catch (UserNotFoundException e) {
 			e.printStackTrace();
 		}
-        IQ notificationIQ = createNotificationIQ(id,apiKey, title, message, uri);
+        IQ notificationIQ = createNotificationIQ(id,apiKey, title, message, uri,imageUrl);
         ClientSession session = sessionManager.getSession(username);
         
         if (session != null) {
@@ -121,7 +121,7 @@ public class NotificationManager {
                 notificationIQ.setTo(session.getAddress());
                 session.deliver(notificationIQ);
             }else{
-            	saveNotification(id,apiKey, username, title, message, uri);
+            	saveNotification(id,apiKey, username, title, message,imageUrl, uri);
             }
         }
         
@@ -129,26 +129,26 @@ public class NotificationManager {
     }
     
     public void sendNotificationByAlias(String apiKey, String alias,String title, 
-    		String message, String uri,boolean shouldsave) {
+    		String message, String uri,String imageUrl,boolean shouldsave) {
     	String username=sessionManager.getUsernameByAlias(alias);
     	if (username!=null) {
-			sendNotifcationToUser(apiKey, username, title, message, uri, shouldsave);
+			sendNotifcationToUser(apiKey, username, title, message, uri,imageUrl, shouldsave);
 		}	
 	}
     
     public void sendNotificationByTag(String apiKey, String tag,String title, 
-    		String message, String uri,boolean shouldsave) {
+    		String message, String uri,String imageUrl,boolean shouldsave) {
     	Set<String> usernamesset=sessionManager.getUsernamesByTag(tag);
     	if (usernamesset!=null&&!usernamesset.isEmpty()) {
     		for(String username:usernamesset){
-    			sendNotifcationToUser(apiKey, username, title, message, uri, shouldsave);
+    			sendNotifcationToUser(apiKey, username, title, message, uri, imageUrl,shouldsave);
     		}
 			
 		}
 	}
     
 	private void saveNotification(String uuid,String apiKey, String username,
-            String title, String message, String uri){
+            String title, String message,String imageUrl, String uri){
     	Notification notification=new Notification();
     	notification.setApiKey(apiKey);
     	notification.setMessage(message);
@@ -156,6 +156,7 @@ public class NotificationManager {
     	notification.setUri(uri);
     	notification.setUsername(username);
     	notification.setUUID(uuid);
+    	notification.setImageUrl(imageUrl);
     	notificationService.saveNotification(notification);
     }
 
@@ -163,7 +164,7 @@ public class NotificationManager {
      * Creates a new notification IQ and returns it.
      */
     private IQ createNotificationIQ(String id,String apiKey, String title,
-            String message, String uri) {
+            String message, String uri,String imageUrl) {
         
         // String id = String.valueOf(System.currentTimeMillis());
 
@@ -174,6 +175,7 @@ public class NotificationManager {
         notification.addElement("title").setText(title);
         notification.addElement("message").setText(message);
         notification.addElement("uri").setText(uri);
+        notification.addElement("imageUrl").setText(imageUrl);
 
         IQ iq = new IQ();
         iq.setType(IQ.Type.set);
